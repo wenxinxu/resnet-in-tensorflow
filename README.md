@@ -9,3 +9,7 @@ The num_residual_blocks flag defines the layer number of the network. Total laye
 resnet.py defines the network structure and some summary operations to summarize the sparsity of each layer.You can adjust the weight decay by changing the 'weight_decay' and 'fc_weight_decay'
 
 cifar10_input.py is the data I-O file. Supports training on random label. 
+
+## TODO:
+1. Put a training curve on
+2. Add a bottleneck structure for networks with more than 56 layers
