@@ -1,5 +1,8 @@
 # resnet_in_tensorflow
-Re-implement Kaiming He's deep residual networks with tensorflow (http://arxiv.org/abs/1512.03385, https://arxiv.org/abs/1603.05027). You can train a resnet on cifar10 by downloading and running the code directly. If you like the code, please star it! You are welcome to post questions and suggestions on my github.
+Re-implement Kaiming He's deep residual networks with tensorflow (http://arxiv.org/abs/1512.03385, https://arxiv.org/abs/1603.05027). 
+This version is designed to be straightforward and friendly to new ResNet users. You can train a resnet on cifar10 by downloading and running the code directly. There are screen outputs, tensorboard statistics and tensorboard graph visualization to help you understand the model.
+
+####If you like the code, please star it! You are welcome to post questions and suggestions on my github.
 
 ## Validation errors
 I implemented 32, 56 and 110 layers of resnet respectively. The lowest valdiation errors are 6.7%, 6.6% and 6.4%.
