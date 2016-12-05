@@ -1,15 +1,26 @@
 # resnet_in_tensorflow
-Re-implement Kaiming He's deep residual networks with tensorflow (http://arxiv.org/abs/1512.03385, https://arxiv.org/abs/1603.05027). You can train a resnet on cifar10 by downloading and running the code directly.
+Re-implement Kaiming He's deep residual networks with tensorflow (http://arxiv.org/abs/1512.03385, https://arxiv.org/abs/1603.05027). You can train a resnet on cifar10 by downloading and running the code directly. If you like the code, please star it! You are welcome to post questions and suggestions on my github.
 
-## The repository is consist of three python scripts. 
-cifar10_train.py is the main body the code. It will download the data set and start training and validation directly. 
-The version flag helps manage the version of your experiments. The logs will be saved in 'logs_version' folder and all training curves/scalar/histogram summary can be checked by tensorboard. 
-The num_residual_blocks flag defines the layer number of the network. Total layer = 6 * num_residual_blocks + 3
+## Validation errors
+I implemented 32, 56 and 110 layers of resnet respectively. The lowest valdiation errors are 6.7%, 6.6% and 6.4%.
 
-resnet.py defines the network structure and some summary operations to summarize the sparsity of each layer.You can adjust the weight decay by changing the 'weight_decay' and 'fc_weight_decay'
+## Training curves
+![alt tag](https://github.com/wenxinxu/resnet_in_tensorflow/blob/master/train_curve2.png)
 
-cifar10_input.py is the data I-O file. Supports training on random label. 
+## User's guide
+There are four python files in the repository. cifar10_train.py, hyper_parameters.py, cifar10_input.py and resnet.py. 
 
-## TODO:
-1. Put a training curve on
-2. Add a bottleneck structure for networks with more than 56 layers
+Basically you can run cifar10_train.py and see how it works from the screen output without any downloads. It’s better to define a specific version identifier before running, as the training logs, checkpoints and error.csv file will be saved in a new logs_$version folder. You may do this by command line orders like python cifar10_train.py --version=’test’ or change inside the hyper-parameter.py. 
+
+The values and statistics of each layer can be found on tensorboard. Use tensorboard --logdir=’logs_$version’ command to see them. (For eg. If the version is ‘test’, the logdir should be ‘logs_test’.)
+
+###	pre-requisites
+pandas, numpy , opencv, tensorflow(0.11.0, I am not sure if earlier version would work)
+###	hyper-parameters.py
+Defines hyper-parameters related to train, resnet structure, data augmentation, etc. 
+### resnet.py
+The resnet structure. 
+###	cifar10_train.py
+Run this code and start training immediately!
+
+
