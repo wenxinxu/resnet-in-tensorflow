@@ -1,24 +1,24 @@
+# Coder: Wenxin Xu
+# Github: https://github.com/wenxinxu/resnet_in_tensorflow
+# ==============================================================================
 import tarfile
 from six.moves import urllib
 import sys
 import numpy as np
 import cPickle
 import os
+import cv2
 
 data_dir = 'cifar10_data'
 full_data_dir = 'cifar10_data/cifar-10-batches-py/data_batch_'
 vali_dir = 'cifar10_data/cifar-10-batches-py/test_batch'
 DATA_URL = 'http://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz'
-use_saved_random_label = True
+
 
 IMG_WIDTH = 32
 IMG_HEIGHT = 32
 IMG_DEPTH = 3
 NUM_CLASS = 10
-PREPROCESSING_TYPE = 2
-#type 1 -- minus mean images
-#type 2 -- global mean and std
-#type 3 -- whitening per images
 
 TRAIN_RANDOM_LABEL = False # Want to use random label for train data?
 VALI_RANDOM_LABEL = False # Want to use random label for validation?
@@ -28,6 +28,10 @@ EPOCH_SIZE = 10000 * NUM_TRAIN_BATCH
 
 
 def maybe_download_and_extract():
+    '''
+    Will download and extract the cifar10 data automatically
+    :return:
+    '''
     dest_directory = data_dir
     if not os.path.exists(dest_directory):
         os.makedirs(dest_directory)
@@ -77,25 +81,9 @@ def read_in_all_images(address_list, shuffle=True, is_random_label = False):
     num_data = len(label)
 
     # This reshape order is really important. Don't change
+    # Reshape is correct. Double checked
     data = data.reshape((num_data, IMG_HEIGHT * IMG_WIDTH, IMG_DEPTH), order='F')
     data = data.reshape((num_data, IMG_HEIGHT, IMG_WIDTH, IMG_DEPTH))
-
-    if PREPROCESSING_TYPE == 1:
-        mean_image = np.mean(data, axis=0)
-        # Subtract per pixel mean. The trailing axes has the same dimension, thus can subtract directly
-        data -= mean_image
-
-    elif PREPROCESSING_TYPE == 2:
-        global_mean = np.mean(data)
-        global_std = np.std(data)
-
-        data = (data - global_mean) / global_std
-
-    else:
-        mean_of_each_image = np.reshape(np.mean(data, axis=(1,2,3)), [data.shape[0],1,1,1])
-        std_of_each_image = np.std(data, axis=(1,2,3))
-        std_of_each_image = np.reshape(std_of_each_image, [data.shape[0], 1,1,1])
-        data = np.divide((data - mean_of_each_image), std_of_each_image)
 
 
     if shuffle is True:
@@ -108,20 +96,77 @@ def read_in_all_images(address_list, shuffle=True, is_random_label = False):
     return data, label
 
 
-def prepare_train_data():
+def horizontal_flip(image, axis):
+    '''
+    Flip an image at 50% possibility
+    :param image: a 3 dimensional numpy array representing an image
+    :param axis: 0 for vertical flip and 1 for horizontal flip
+    :return: 3D image after flip
+    '''
+    flip_prop = np.random.randint(low=0, high=2)
+    if flip_prop == 0:
+        image = cv2.flip(image, axis)
+
+    return image
+
+
+def whitening_image(image_np):
+    '''
+    Performs per_image_whitening
+    :param image_np:
+    :return:
+    '''
+    for i in range(len(image_np)):
+        mean = np.mean(image_np[i, ...])
+        std = np.max(np.std(image_np[i, ...]), 1.0/np.sqrt(IMG_HEIGHT * IMG_WIDTH * IMG_DEPTH))
+        image_np[i,...] = (image_np[i, ...] - mean) / std
+    return image_np
+
+
+def random_crop_and_flip(batch_data, padding_size):
+    '''
+    :param batch_data: a 4D batch array
+    :return: randomly cropped image
+    '''
+    cropped_batch = np.zeros(len(batch_data) * IMG_HEIGHT * IMG_WIDTH * IMG_DEPTH).reshape(
+        len(batch_data), IMG_HEIGHT, IMG_WIDTH, IMG_DEPTH)
+
+    for i in range(len(batch_data)):
+        x_offset = np.random.randint(low=0, high=2 * padding_size, size=1)[0]
+        y_offset = np.random.randint(low=0, high=2 * padding_size, size=1)[0]
+        cropped_batch[i, ...] = batch_data[i, ...][x_offset:x_offset+IMG_HEIGHT,
+                      y_offset:y_offset+IMG_WIDTH, :]
+
+        cropped_batch[i, ...] = horizontal_flip(image=cropped_batch[i, ...], axis=1)
+
+    return cropped_batch
+
+
+def prepare_train_data(padding_size):
+    '''
+    Read all the train data into numpy array and add padding_size 0 paddings on each side on the
+    image
+    :return: all the train data and corresponding labels
+    '''
     path_list = []
     for i in range(1, NUM_TRAIN_BATCH+1):
         path_list.append(full_data_dir + str(i))
     data, label = read_in_all_images(path_list, is_random_label=TRAIN_RANDOM_LABEL)
+    
+    pad_width = ((0, 0), (padding_size, padding_size), (padding_size, padding_size), (0, 0))
+    data = np.pad(data, pad_width=pad_width, mode='constant', constant_values=0)
+    
     return data, label
 
 
 def read_validation_data():
-    return read_in_all_images([vali_dir], is_random_label=VALI_RANDOM_LABEL)
+    '''
+    Whitening at the same time
+    :return:
+    '''
+    validation_array, validation_labels = read_in_all_images([vali_dir],
+                                                       is_random_label=VALI_RANDOM_LABEL)
+    validation_array = whitening_image(validation_array)
 
-def generate_vali_batch(vali_data, vali_label, vali_batch_size):
-    offset = np.random.choice(10000 - vali_batch_size, 1)[0]
-    vali_data_batch = vali_data[offset:offset+vali_batch_size, ...]
-    vali_label_batch = vali_label[offset:offset+vali_batch_size]
-    return vali_data_batch, vali_label_batch
+    return validation_array, validation_labels
 
