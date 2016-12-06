@@ -5,7 +5,7 @@ This version is designed to be straightforward and friendly to new ResNet users.
 ####If you like the code, please star it! You are welcome to post questions and suggestions on my github.
 
 ## Validation errors
-I implemented 32, 56 and 110 layers of resnet respectively. The lowest valdiation errors are 6.7%, 6.6% and 6.4%.
+The lowest valdiation errors of ResNet-32, ResNet-56 and ResNet-110 are 6.7%, 6.6% and 6.4% respectively. You can change the number of the total layers by changing the hyper-parameter num_residual_blocks. Total layers = 6 * num_residual_blocks + 2
 
 ## Training curves
 ![alt tag](https://github.com/wenxinxu/resnet_in_tensorflow/blob/master/train_curve2.png)
