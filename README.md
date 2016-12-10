@@ -91,4 +91,11 @@ There are five categories of hyper-parameters.
 -----------------------------------------------------------------------------------------------------------------------------------
 
 
+### ResNet Structure
+Here we use the latest version of ResNet. The structure of the residual block looks like:
+
+<img src="https://github.com/wenxinxu/resnet-in-tensorflow/blob/master/appendix/Residual_block.png" width="240">
+
+
+
 
