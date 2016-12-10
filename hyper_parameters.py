@@ -33,7 +33,7 @@ tf.app.flags.DEFINE_integer('decay_step1', 60000, '''At which step to decay the 
 
 ## The following flags define hyper-parameters modifying the training network
 
-tf.app.flags.DEFINE_integer('num_residual_blocks', 18, '''How many residual blocks do you want''')
+tf.app.flags.DEFINE_integer('num_residual_blocks', 5, '''How many residual blocks do you want''')
 tf.app.flags.DEFINE_float('weight_decay', 0.0002, '''scale for l2 regularization''')
 
 
