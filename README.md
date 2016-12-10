@@ -14,7 +14,7 @@ ResNet-56 | 6.5%
 ResNet-110 | 6.2%
 
 ## Training curves
-![alt tag]()
+![alt tag](https://github.com/wenxinxu/resnet-in-tensorflow/blob/master/train_curve2.png)
 
 ## User's guide
 Basically, you can run cifar10_train.py and see how it works from the screen output without any downloads. It’s better to define a specific version identifier before running, as the training logs, checkpoints, and error.csv file will be saved in a new logs_$version folder. You may do this by command line commands like: `python cifar10_train.py --version='test'`. You may also change the version number inside the hyper_parameters.py file
@@ -64,6 +64,18 @@ There are five categories of hyper-parameters.
 **decay_step1**: int. Which step to decay the learning rate on for the second time
 
 
+####3. Hyper-parameters that modifies the network
+**num_residual_blocks**: int. The total layers of the ResNet = 6 * num_residual_blocks + 2
+
+**weight_decay**: float. weight decay used to regularize the network. Total_loss = train_loss + weight_decay*sum(weights)
+
+####4. About data augmentation
+**padding_size**: int. Padding and random cropping during training can prevent overfitting. padding_size is numbers of zero pads to add on each side of the image.
+
+####5. Loading checkpoints
+**ckpt_path**: str. The path of the checkpoint that you want to load
+
+**is_use_ckpt**: Whether to load a checkpoint and continue training?
 
 
 
