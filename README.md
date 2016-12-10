@@ -34,17 +34,23 @@ hyper_parameters.py defines hyper-parameters related to train, resnet structure,
 
 The following parts expain the codes in details.
 
+------------------------------------------------------------------------------------------------------------------------------------
 ### hyper_parameters.py
 This file defines all the hyper-parameters that you may change to customize your training. All of them are defined via tf.app.flags.FLAGS, so that you may use `python cifar10_train.py --hyper_parameter1=value1 --hyper_parameter2=value2` to set all the hyper-parameters when running. You may also change the default values inside the python script.
 
 There are five categories of hyper-parameters.
+
+-------------------------------------------------------------------------------------------------------------------------------------
 ####1. Hyper-parameters about saving training logs, tensorboard outputs and screen outputs, which includes:
 **version**: str. The checkpoints and output events will be saved in logs_$version/
 
 **report_freq**: int. How many batches to run a full validation and print screen output once. Screen output looks like:
 ![alt tag](https://github.com/wenxinxu/resnet-in-tensorflow/blob/master/appendix/Screen_output_example.png)
 
-**train_ema_decay**: float. The tensorboard will record a moving average of batch train errors, besides the original ones. This decay factor is used to define an ExponentialMovingAverage object in tensorflow with `tf.train.ExponentialMovingAverage(FLAGS.train_ema_decay, global_step)`. Essentially, the recorded error = train_ema_decay * shadowed_error + (1 - train_ema_decay) * current_batch_error. The lager the train_ema_decay is, the smoother the training curve will be.
+**train_ema_decay**: float. The tensorboard will record a moving average of batch train errors, besides the original ones. This decay factor is used to define an ExponentialMovingAverage object in tensorflow with `tf.train.ExponentialMovingAverage(FLAGS.train_ema_decay, global_step)`. Essentially, the recorded error = train_ema_decay * shadowed_error + (1 - train_ema_decay) * current_batch_error. The larger the train_ema_decay is, the smoother the training curve will be.
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
 
 ####2. Hyper-parameters that regulates the training process
 **train_steps**: int. Total steps you want to train
@@ -63,19 +69,26 @@ There are five categories of hyper-parameters.
 
 **decay_step1**: int. Which step to decay the learning rate on for the second time
 
+------------------------------------------------------------------------------------------------------------------------------------
 
 ####3. Hyper-parameters that modifies the network
 **num_residual_blocks**: int. The total layers of the ResNet = 6 * num_residual_blocks + 2
 
 **weight_decay**: float. weight decay used to regularize the network. Total_loss = train_loss + weight_decay*sum(weights)
 
+-----------------------------------------------------------------------------------------------------------------------------------
+
 ####4. About data augmentation
 **padding_size**: int. Padding and random cropping during training can prevent overfitting. padding_size is numbers of zero pads to add on each side of the image.
+
+-----------------------------------------------------------------------------------------------------------------------------------
 
 ####5. Loading checkpoints
 **ckpt_path**: str. The path of the checkpoint that you want to load
 
 **is_use_ckpt**: Whether to load a checkpoint and continue training?
+
+-----------------------------------------------------------------------------------------------------------------------------------
 
 
 
