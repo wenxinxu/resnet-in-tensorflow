@@ -30,7 +30,7 @@ EPOCH_SIZE = 10000 * NUM_TRAIN_BATCH
 def maybe_download_and_extract():
     '''
     Will download and extract the cifar10 data automatically
-    :return:
+    :return: nothing
     '''
     dest_directory = data_dir
     if not os.path.exists(dest_directory):
@@ -50,6 +50,15 @@ def maybe_download_and_extract():
 
 
 def _read_one_batch(path, is_random_label):
+    '''
+    The training data contains five data batches in total. The validation data has only one
+    batch. This function takes the directory of one batch of data and returns the images and
+    corresponding labels as numpy arrays
+
+    :param path: the directory of one batch of data
+    :param is_random_label: do you want to use random labels?
+    :return: image numpy arrays and label numpy arrays
+    '''
     fo = open(path, 'rb')
     dicts = cPickle.load(fo)
     fo.close()
@@ -65,8 +74,12 @@ def _read_one_batch(path, is_random_label):
 
 def read_in_all_images(address_list, shuffle=True, is_random_label = False):
     """
+    This function reads all training or validation data, shuffles them if needed, and returns the
+    images and the corresponding labels as numpy arrays
+
     :param address_list: a list of paths of cPickle files
-    :return: concatenated numpy array of data and labels
+    :return: concatenated numpy array of data and labels. Data are in 4D arrays: [num_images,
+    image_height, image_width, image_depth] and labels are in 1D arrays: [num_images]
     """
     data = np.array([]).reshape([0, IMG_WIDTH * IMG_HEIGHT * IMG_DEPTH])
     label = np.array([])
@@ -113,11 +126,12 @@ def horizontal_flip(image, axis):
 def whitening_image(image_np):
     '''
     Performs per_image_whitening
-    :param image_np:
-    :return:
+    :param image_np: a 4D numpy array representing a batch of images
+    :return: the image numpy array after whitened
     '''
     for i in range(len(image_np)):
         mean = np.mean(image_np[i, ...])
+        # Use adjusted standard deviation here, in case the std == 0.
         std = np.max(np.std(image_np[i, ...]), 1.0/np.sqrt(IMG_HEIGHT * IMG_WIDTH * IMG_DEPTH))
         image_np[i,...] = (image_np[i, ...] - mean) / std
     return image_np
@@ -125,8 +139,10 @@ def whitening_image(image_np):
 
 def random_crop_and_flip(batch_data, padding_size):
     '''
+    Helper to random crop and random flip a batch of images
+    :param padding_size: int. how many layers of 0 padding was added to each side
     :param batch_data: a 4D batch array
-    :return: randomly cropped image
+    :return: randomly cropped and flipped image
     '''
     cropped_batch = np.zeros(len(batch_data) * IMG_HEIGHT * IMG_WIDTH * IMG_DEPTH).reshape(
         len(batch_data), IMG_HEIGHT, IMG_WIDTH, IMG_DEPTH)
@@ -144,8 +160,9 @@ def random_crop_and_flip(batch_data, padding_size):
 
 def prepare_train_data(padding_size):
     '''
-    Read all the train data into numpy array and add padding_size 0 paddings on each side on the
+    Read all the train data into numpy array and add padding_size of 0 paddings on each side of the
     image
+    :param padding_size: int. how many layers of zero pads to add on each side?
     :return: all the train data and corresponding labels
     '''
     path_list = []
@@ -161,12 +178,13 @@ def prepare_train_data(padding_size):
 
 def read_validation_data():
     '''
-    Whitening at the same time
-    :return:
+    Read in validation data. Whitening at the same time
+    :return: Validation image data as 4D numpy array. Validation labels as 1D numpy array
     '''
     validation_array, validation_labels = read_in_all_images([vali_dir],
                                                        is_random_label=VALI_RANDOM_LABEL)
     validation_array = whitening_image(validation_array)
 
     return validation_array, validation_labels
+
 
