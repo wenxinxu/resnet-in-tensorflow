@@ -96,6 +96,15 @@ Here we use the latest version of ResNet. The structure of the residual block lo
 
 <img src="https://github.com/wenxinxu/resnet-in-tensorflow/blob/master/appendix/Residual_block.png" width="240">
 
+The inference() function is the main function of resnet.py. It takes three arguments: input_tensor_batch, n and resue. input_tensor_batch is a 4D tensor with shape of [batch_size, img_height, img_width, img_depth]. n is the num_residual_blocks. Reuse is a boolean, indicating the graph is build for train or validation data. 
+
+To enable the different sizes of validation batch to train batch, I use two different sets of placeholders for train and validation data, and build the graphs separately, and the validation graph shares the same weights with the train graph. In this situation, we are passing reuse=True to each variable scope of train graph to fetch the weights. To read more about variable scope, see https://www.tensorflow.org/versions/master/how_tos/variable_scope/index.html
+
+
+
+
+   
+
 
 
 
