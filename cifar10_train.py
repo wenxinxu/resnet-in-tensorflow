@@ -11,12 +11,24 @@ import pandas as pd
 
 
 class Train(object):
+    '''
+    This Object is responsible for all the training and validation process
+    '''
     def __init__(self):
+        # Set up all the placeholders
         self.placeholders()
+        # Start training
         self.train()
 
 
     def placeholders(self):
+        '''
+        There are five placeholders in total.
+        image_placeholder and label_placeholder are for train images and labels
+        vali_image_placeholder and vali_label_placeholder are for validation imgaes and labels
+        lr_placeholder is for learning rate. Feed in learning rate each time of training
+        implements learning rate decay easily
+        '''
         self.image_placeholder = tf.placeholder(dtype=tf.float32,
                                                 shape=[FLAGS.train_batch_size, IMG_HEIGHT,
                                                         IMG_WIDTH, IMG_DEPTH])
@@ -31,12 +43,21 @@ class Train(object):
 
 
     def build_train_validation_graph(self):
+        '''
+        This function builds the train graph and validation graph at the same time.
+        
+        '''
         global_step = tf.Variable(0, trainable=False)
         validation_step = tf.Variable(0, trainable=False)
 
+        # Logits of training data and valiation data come from the same graph. The inference of
+        # validation data share all the weights with train data. This is implemented by passing
+        # reuse=True to the variable scopes of train graph
         logits = inference(self.image_placeholder, FLAGS.num_residual_blocks, reuse=False)
         vali_logits = inference(self.vali_image_placeholder, FLAGS.num_residual_blocks, reuse=True)
 
+        # The following codes calculate the train loss, which is consist of the
+        # softmax cross entropy and the relularization loss
         regu_losses = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
         loss = self.loss(logits, self.label_placeholder)
         self.full_loss = tf.add_n([loss] + regu_losses)
@@ -44,6 +65,8 @@ class Train(object):
         predictions = tf.nn.softmax(logits)
         self.train_top1_error = self.top_k_error(predictions, self.label_placeholder, 1)
 
+
+        # Validation loss
         self.vali_loss = self.loss(vali_logits, self.vali_label_placeholder)
         vali_predictions = tf.nn.softmax(vali_logits)
         self.vali_top1_error = self.top_k_error(vali_predictions, self.vali_label_placeholder, 1)
@@ -55,28 +78,38 @@ class Train(object):
 
 
     def train(self):
+        '''
+        This is the main function for training
+        '''
+
+        # For the first step, we are loading all training images and validation images into the
+        # memory
         all_data, all_labels = prepare_train_data(padding_size=FLAGS.padding_size)
         vali_data, vali_labels = read_validation_data()
 
-
+        # Build the graph for train and validation
         self.build_train_validation_graph()
 
-
+        # Initialize a saver to save checkpoints. Merge all summaries, so we can run all
+        # summarizing operations by running summary_op. Initialize a new session
         saver = tf.train.Saver(tf.all_variables())
         summary_op = tf.merge_all_summaries()
         init = tf.initialize_all_variables()
         sess = tf.Session()
 
 
+        # If you want to load from a checkpoint
         if FLAGS.is_use_ckpt is True:
             saver.restore(sess, FLAGS.ckpt_path)
             print 'Restored from checkpoint...'
         else:
             sess.run(init)
 
+        # This summary writer object helps write summaries on tensorboard
         summary_writer = tf.train.SummaryWriter(train_dir, sess.graph)
 
 
+        # These lists are used to save a csv file at last
         step_list = []
         train_error_list = []
         val_error_list = []
@@ -93,6 +126,8 @@ class Train(object):
             validation_batch_data, validation_batch_labels = self.generate_vali_batch(vali_data,
                                                            vali_labels, FLAGS.validation_batch_size)
 
+            # Want to validate once before training. You may check the theoretical validation
+            # loss first
             if step % FLAGS.report_freq == 0:
 
                 if FLAGS.is_full_validation is True:
@@ -161,6 +196,7 @@ class Train(object):
                 FLAGS.init_lr = 0.1 * FLAGS.init_lr
                 print 'Learning rate decayed to ', FLAGS.init_lr
 
+            # Save checkpoints every 10000 steps
             if step % 10000 == 0 or (step + 1) == FLAGS.train_steps:
                 checkpoint_path = os.path.join(train_dir, 'model.ckpt')
                 saver.save(sess, checkpoint_path, global_step=step)
@@ -173,6 +209,12 @@ class Train(object):
 
     ## Helper functions
     def loss(self, logits, labels):
+        '''
+        Calculate the cross entropy loss given logits and true labels
+        :param logits: 2D tensor with shape [batch_size, num_labels]
+        :param labels: 1D tensor with shape [batch_size]
+        :return: loss tensor with shape [1]
+        '''
         labels = tf.cast(labels, tf.int64)
         cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits, labels, name='cross_entropy_per_example')
         cross_entropy_mean = tf.reduce_mean(cross_entropy, name='cross_entropy')
@@ -180,6 +222,13 @@ class Train(object):
 
 
     def top_k_error(self, predictions, labels, k):
+        '''
+        Calculate the top-k error
+        :param predictions: 2D tensor with shape [batch_size, num_labels]
+        :param labels: 1D tensor with shape [batch_size, 1]
+        :param k: int
+        :return: tensor with shape [1]
+        '''
         batch_size = predictions.get_shape().as_list()[0]
         in_top1 = tf.to_float(tf.nn.in_top_k(predictions, labels, k=1))
         num_correct = tf.reduce_sum(in_top1)
@@ -187,6 +236,14 @@ class Train(object):
 
 
     def generate_vali_batch(self, vali_data, vali_label, vali_batch_size):
+        '''
+        If you want to use a random batch of validation data to validate instead of using the
+        whole validation data, this function helps you generate that batch
+        :param vali_data: 4D numpy array
+        :param vali_label: 1D numpy array
+        :param vali_batch_size: int
+        :return: 4D numpy array and 1D numpy array
+        '''
         offset = np.random.choice(10000 - vali_batch_size, 1)[0]
         vali_data_batch = vali_data[offset:offset+vali_batch_size, ...]
         vali_label_batch = vali_label[offset:offset+vali_batch_size]
@@ -194,6 +251,14 @@ class Train(object):
 
 
     def generate_augment_train_batch(self, train_data, train_labels, train_batch_size):
+        '''
+        This function helps generate a batch of train data, and random crop, horizontally flip
+        and whiten them at the same time
+        :param train_data: 4D numpy array
+        :param train_labels: 1D numpy array
+        :param train_batch_size: int
+        :return: augmented train batch data and labels. 4D numpy array and 1D numpy array
+        '''
         offset = np.random.choice(EPOCH_SIZE - train_batch_size, 1)[0]
         batch_data = train_data[offset:offset+train_batch_size, ...]
         batch_data = random_crop_and_flip(batch_data, padding_size=FLAGS.padding_size)
@@ -205,11 +270,20 @@ class Train(object):
 
 
     def train_operation(self, global_step, total_loss, top1_error):
-
+        '''
+        Defines train operations
+        :param global_step: tensor variable with shape [1]
+        :param total_loss: tensor with shape [1]
+        :param top1_error: tensor with shape [1]
+        :return: two operations. Running train_op will do optimization once. Running train_ema_op
+        will generate the moving average of train error and train loss for tensorboard
+        '''
+        # Add train_loss, current learning rate and train error into the tensorboard summary ops
         tf.scalar_summary('learning_rate', self.lr_placeholder)
         tf.scalar_summary('train_loss', total_loss)
         tf.scalar_summary('train_top1_error', top1_error)
 
+        # The ema object help calculate the moving average of train loss and train error
         ema = tf.train.ExponentialMovingAverage(FLAGS.train_ema_decay, global_step)
         train_ema_op = ema.apply([total_loss, top1_error])
         tf.scalar_summary('train_top1_error_avg', ema.average(top1_error))
@@ -221,14 +295,29 @@ class Train(object):
 
 
     def validation_op(self, validation_step, top1_error, loss):
+        '''
+        Defines validation operations
+        :param validation_step: tensor with shape [1]
+        :param top1_error: tensor with shape [1]
+        :param loss: tensor with shape [1]
+        :return: validation operation
+        '''
+
+        # This ema object help calculate the moving average of validation loss and error
+
+        # ema with decay = 0.0 won't average things at all. This returns the original error
         ema = tf.train.ExponentialMovingAverage(0.0, validation_step)
         ema2 = tf.train.ExponentialMovingAverage(0.95, validation_step)
+
+
         val_op = tf.group(validation_step.assign_add(1), ema.apply([top1_error, loss]),
                           ema2.apply([top1_error, loss]))
         top1_error_val = ema.average(top1_error)
         top1_error_avg = ema2.average(top1_error)
         loss_val = ema.average(loss)
         loss_val_avg = ema2.average(loss)
+
+        # Summarize these values on tensorboard
         tf.scalar_summary('val_top1_error', top1_error_val)
         tf.scalar_summary('val_top1_error_avg', top1_error_avg)
         tf.scalar_summary('val_loss', loss_val)
@@ -238,6 +327,17 @@ class Train(object):
 
     def full_validation(self, loss, top1_error, session, vali_data, vali_labels, batch_data,
                         batch_label):
+        '''
+        Runs validation on all the 10000 valdiation images
+        :param loss: tensor with shape [1]
+        :param top1_error: tensor with shape [1]
+        :param session: the current tensorflow session
+        :param vali_data: 4D numpy array
+        :param vali_labels: 1D numpy array
+        :param batch_data: 4D numpy array. training batch to feed dict and fetch the weights
+        :param batch_label: 1D numpy array. training labels to feed the dict
+        :return: float, float
+        '''
         num_batches = 10000 // FLAGS.validation_batch_size
         order = np.random.choice(10000, num_batches * FLAGS.validation_batch_size)
         vali_data_subset = vali_data[order, ...]
@@ -245,7 +345,7 @@ class Train(object):
 
         loss_list = []
         error_list = []
-
+        
         for step in range(num_batches):
             offset = step * FLAGS.validation_batch_size
             feed_dict = {self.image_placeholder: batch_data, self.label_placeholder: batch_label,
