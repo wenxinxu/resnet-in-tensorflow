@@ -1,6 +1,5 @@
 # ResNet in Tensorflow
-Re-implement Kaiming He's deep residual networks with tensorflow ([original version](http://arxiv.org/abs/1512.03385),  [new version](https://arxiv.org/abs/1603.05027)). 
-This version is designed to be straightforward and friendly to new ResNet users. You can train a resnet on cifar10 by downloading and running the code directly. There are screen outputs, tensorboard statistics and tensorboard graph visualization to help you understand the model.
+This implementation of [residual networks](http://arxiv.org/abs/1512.03385) and [its variant](https://arxiv.org/abs/1603.05027)is designed to be straightforward and friendly to new ResNet users. You can train a resnet on cifar10 by downloading and running the code directly. There are screen outputs, tensorboard statistics and tensorboard graph visualization to help you understand the model.
 
 ####If you like the code, please star it! You are welcome to post questions and suggestions on my github.
 
