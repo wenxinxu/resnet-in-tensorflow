@@ -4,6 +4,18 @@ This version is designed to be straightforward and friendly to new ResNet users.
 
 ####If you like the code, please star it! You are welcome to post questions and suggestions on my github.
 
+
+##Table of Contents
+* [Validation errors](#validation-errors)
+* [Training curves](#training-curves)
+* [User's guide](#users-guide)
+   * [Pre-requisites](#pre-requisites)
+   * [Overall structure](#overall-structure)
+   * [Hyper-parameters](#hyper-parameters)
+   * [Resnet Strcuture](#resnet-structure)
+   * [Training](#training)
+
+
 ## Validation errors
 The lowest valdiation errors of ResNet-32, ResNet-56 and ResNet-110 are 6.7%, 6.5% and 6.2% respectively. You can change the number of the total layers by changing the hyper-parameter num_residual_blocks. Total layers = 6 * num_residual_blocks + 2
 
@@ -21,7 +33,7 @@ Basically, you can run cifar10_train.py and see how it works from the screen out
 
 The values and statistics of each layer can be found on tensorboard. Use `tensorboard --logdir='logs_$version'` command to pull them out. (For e.g. If the version is ‘test’, the logdir should be ‘logs_test’.)
 
-###	Pre-requisites
+### Pre-requisites
 pandas, numpy , opencv, tensorflow(0.11.0, I am not sure if earlier version would work)
 
 ### Overall structure
@@ -35,8 +47,8 @@ hyper_parameters.py defines hyper-parameters related to train, resnet structure,
 The following parts expain the codes in details.
 
 ------------------------------------------------------------------------------------------------------------------------------------
-### hyper_parameters.py
-This file defines all the hyper-parameters that you may change to customize your training. All of them are defined via tf.app.flags.FLAGS, so that you may use `python cifar10_train.py --hyper_parameter1=value1 --hyper_parameter2=value2` to set all the hyper-parameters when running. You may also change the default values inside the python script.
+### hyper-parameters
+The hyper_parameters.py file defines all the hyper-parameters that you may change to customize your training. All of them are defined via tf.app.flags.FLAGS, so that you may use `python cifar10_train.py --hyper_parameter1=value1 --hyper_parameter2=value2` to set all the hyper-parameters when running. You may also change the default values inside the python script.
 
 There are five categories of hyper-parameters.
 
@@ -107,7 +119,15 @@ The class Train() defines all the functions that regulates training, with train(
 The following two concepts may help you understand the code better.
 
 ####1. Placeholder
-Placeholders can be viewed as tensors that must be fed with real data on every execution. If you want to change the "values" of certain tensors on each step of training, placeholders are the most straightforward way. For example, we train the model with different batches of data on each step by feeding different batches of numpy array into the image_placeholder and label_placeholder. For more detailed explaination, see [tf.placeholder()](https://www.tensorflow.org/api_docs/python/io_ops/placeholders#placeholder) and [feeding data](https://www.tensorflow.org/how_tos/reading_data/#feeding)
+Placeholders can be viewed as tensors that must be fed with real data on every execution. If you want to change the "values" of certain tensors on each step of training, placeholders are the most straightforward way. For example, we train the model with different batches of data on each step by feeding different batches of numpy array into the image_placeholder and label_placeholder. A feed dict looks like:
+```
+feed_dict = {self.image_placeholder: train_batch_data,
+             self.label_placeholder: train_batch_labels,
+             self.vali_image_placeholder: validation_batch_data,
+             self.vali_label_placeholder: validation_batch_labels,
+             self.lr_placeholder: FLAGS.init_lr}
+```             
+For more detailed explaination, see [tf.placeholder()](https://www.tensorflow.org/api_docs/python/io_ops/placeholders#placeholder) and [feeding data](https://www.tensorflow.org/how_tos/reading_data/#feeding)
 
 ####2. Summary
 Tensorboard is a very useful tool to supervise and visualize the training process. Here I provide a step-by-step guide on how to set up tensorboard.
