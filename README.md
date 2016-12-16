@@ -1,7 +1,6 @@
 # ResNet in Tensorflow
-I implement [residual networks](http://arxiv.org/abs/1512.03385) and [its variants](https://arxiv.org/abs/1603.05027) in tensorfflow. 
-
-This implementation is designed to be straightforward and friendly to new ResNet users. You can train a resnet on cifar10 by downloading and running the code. There are screen outputs, tensorboard statistics and tensorboard graph visualization to help you monitor the training process and visualize the model.
+Re-implement Kaiming He's deep residual networks with tensorflow ([original version](http://arxiv.org/abs/1512.03385),  [new version](https://arxiv.org/abs/1603.05027)). 
+This version is designed to be straightforward and friendly to new ResNet users. You can train a resnet on cifar10 by downloading and running the code directly. There are screen outputs, tensorboard statistics and tensorboard graph visualization to help you understand the model.
 
 ####If you like the code, please star it! You are welcome to post questions and suggestions on my github.
 
@@ -109,18 +108,21 @@ Here we use the latest version of ResNet. The structure of the residual block lo
 
 <img src="https://github.com/wenxinxu/resnet-in-tensorflow/blob/master/appendix/Residual_block.png" width="240">
 
-The inference() function is the main function of resnet.py. It takes three arguments: input_tensor_batch, n and resue. input_tensor_batch is a 4D tensor with shape of [batch_size, img_height, img_width, img_depth]. n is the num_residual_blocks. Reuse is a boolean, indicating the graph is build for train or validation data. 
+The inference() function is the main function of resnet.py. It will be used twice in both building the training graph and validation graph. 
+<!--The inference() function is the main function of resnet.py. It takes three arguments: input_tensor_batch, n and resue. input_tensor_batch is a 4D tensor with shape of [batch_size, img_height, img_width, img_depth]. n is the num_residual_blocks. Reuse is a boolean, indicating the graph is build for train or validation data. 
 
-To enable the different sizes of validation batch to train batch, I use two different sets of placeholders for train and validation data, and build the graphs separately, and the validation graph shares the same weights with the train graph. In this situation, we are passing reuse=True to each variable scope of train graph to fetch the weights. To read more about variable scope, see [variable scope](https://www.tensorflow.org/versions/master/how_tos/variable_scope/index.html)
+To enable the different sizes of validation batch to train batch, I use two different sets of placeholders for train and validation data, and build the graphs separately, and the validation graph shares the same weights with the train graph. In this situation, we are passing reuse=True to each variable scope of train graph to fetch the weights. To read more about variable scope, see [variable scope](https://www.tensorflow.org/versions/master/how_tos/variable_scope/index.html) -->
 
 
 ### Training
-The class Train() defines all the functions that regulates training, with train() as the main function. The basic idea is to run train_op for FLAGS.train_steps times. If step % FLAGS.report_freq == 0, it will valdiate once, train once and wrote all the summaries onto the tensorboard. (We do want to validate before training, so that we can check the original errors and losses with the theoretical value.)
+The class Train() defines all the functions regarding training process, with train() being the main function. The basic idea is to run train_op for FLAGS.train_steps times. If step % FLAGS.report_freq == 0, it will valdiate once, train once and wrote all the summaries onto the tensorboard. 
+
+<!--(We do want to validate before training, so that we can check the original errors and losses with the theoretical value.)-->
 
 The following two concepts may help you understand the code better.
 
 ####1. Placeholder
-Placeholders can be viewed as tensors that must be fed with real data on every execution. If you want to change the "values" of certain tensors on each step of training, placeholders are the most straightforward way. For example, we train the model with different batches of data on each step by feeding different batches of numpy array into the image_placeholder and label_placeholder. A feed dict looks like:
+Placeholders can be viewed as tensors that must be fed with real data every time when it is used. If you want to change the "values" of certain tensors on each step of training, placeholders are the most straightforward way. For example, we train the model with different batches of data on each step by feeding different batches of numpy array into the image_placeholder and label_placeholder. A feed dict looks like:
 ```
 feed_dict = {self.image_placeholder: train_batch_data,
              self.label_placeholder: train_batch_labels,
