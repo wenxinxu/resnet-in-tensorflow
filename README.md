@@ -99,7 +99,7 @@ There are five categories of hyper-parameters.
 ####5. Loading checkpoints
 **ckpt_path**: str. The path of the checkpoint that you want to load
 
-**is_use_ckpt**: boolean. If yes,  use a checkpoint and continue the training from the checkpoint?
+**is_use_ckpt**: boolean. If yes,  use a checkpoint and continue the training from the checkpoint
 
 -----------------------------------------------------------------------------------------------------------------------------------
 
