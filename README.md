@@ -132,7 +132,7 @@ feed_dict = {self.image_placeholder: train_batch_data,
              self.vali_label_placeholder: validation_batch_labels,
              self.lr_placeholder: FLAGS.init_lr}
 ```             
-For more detailed explaination, see [tf.placeholder()](https://www.tensorflow.org/api_docs/python/io_ops/placeholders#placeholder) and [feeding data](https://www.tensorflow.org/how_tos/reading_data/#feeding)
+<!--For more detailed explaination, see [tf.placeholder()](https://www.tensorflow.org/api_docs/python/io_ops/placeholders#placeholder) and [feeding data](https://www.tensorflow.org/how_tos/reading_data/#feeding)
 
 ####2. Summary
 Tensorboard is a very useful tool to supervise and visualize the training process. Here I provide a step-by-step guide on how to set up tensorboard.
@@ -141,7 +141,7 @@ Tensorboard is a very useful tool to supervise and visualize the training proces
 After you create the tensor, add `tf.scalar_summary(name='name_on_tensorboard', tensor=tensor)`. [This summary](https://www.tensorflow.org/api_docs/python/summary/generation_of_summaries_#scalar) is essentially an operation. It won't do anything until you run it in a session!
 
 **b) Merge all summaries**
-After you set up all the scalar summaries, type `summary_op = tf.merge_all_summaries()`. This command merge all the summarizing operations into a single operation, which means that running summary_op is equivalent to running all the scalar summaries together. 
+After you set up all the scalar summaries, type `summary_op = tf.merge_all_summaries()`. This command merge all the summarizing operations into a single operation, which means that running summary_op is equivalent to running all the scalar summaries together. -->
 
 ### Test
 The test() function in the class Train() help you predict. It returns the top-1 error and total loss. You need to prepare and pre-process your test data and pass it to the function. You may either use your own checkpoints or the pre-trained ResNet-110 checkpoint I uploaded. You may wrote the following lines at the end of cifar10_train.py file
