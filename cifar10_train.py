@@ -279,7 +279,9 @@ class Train(object):
         else:
             test_error_final = np.mean(test_error_values)
             test_loss_final = np.mean(test_loss_values)
-
+            
+        print 'Final test error = ', test_error_final
+        print 'Final test loss = ', test_loss_final
         return test_error_final, test_loss_final
 
 
