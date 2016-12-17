@@ -121,7 +121,7 @@ The class Train() defines all the functions regarding training process, with tra
  
 <!--(We do want to validate before training, so that we can check the original errors and losses with the theoretical value.)-->
 
-The following two concepts may help you understand the code better.
+<!--The following two concepts may help you understand the code better.
 
 ####1. Placeholder
 Placeholders can be viewed as tensors that must be fed with real data on every execution. If you want to change the "values" of certain tensors on each step of training, placeholders are the most straightforward way. For example, we train the model with different batches of data on each step by feeding different batches of numpy array into the image_placeholder and label_placeholder. A feed dict looks like:
@@ -132,7 +132,7 @@ feed_dict = {self.image_placeholder: train_batch_data,
              self.vali_label_placeholder: validation_batch_labels,
              self.lr_placeholder: FLAGS.init_lr}
 ```             
-<!--For more detailed explaination, see [tf.placeholder()](https://www.tensorflow.org/api_docs/python/io_ops/placeholders#placeholder) and [feeding data](https://www.tensorflow.org/how_tos/reading_data/#feeding)
+For more detailed explaination, see [tf.placeholder()](https://www.tensorflow.org/api_docs/python/io_ops/placeholders#placeholder) and [feeding data](https://www.tensorflow.org/how_tos/reading_data/#feeding)
 
 ####2. Summary
 Tensorboard is a very useful tool to supervise and visualize the training process. Here I provide a step-by-step guide on how to set up tensorboard.
