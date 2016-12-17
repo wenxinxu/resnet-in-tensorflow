@@ -41,7 +41,7 @@ pandas, numpy , opencv, tensorflow(0.11.0)
 ### Overall structure
 There are four python files in the repository. cifar10_input.py, resnet.py, cifar10_train.py, hyper_parameters.py.
 
-cifar10_input.py includes helper functions for downloading, extracting and pre-processing the cifar10 images. 
+cifar10_input.py includes helper functions to download, extract and pre-process the cifar10 images. 
 resnet.py defines the resnet structure.
 cifar10_train.py is responsible for the training and validation.
 hyper_parameters.py defines hyper-parameters related to train, resnet structure, data augmentation, etc. 
@@ -110,13 +110,16 @@ Here we use the latest version of ResNet. The structure of the residual block lo
 
 <img src="https://github.com/wenxinxu/resnet-in-tensorflow/blob/master/appendix/Residual_block.png" width="240">
 
-"""The inference() function is the main function of resnet.py. It takes three arguments: input_tensor_batch, n and resue. input_tensor_batch is a 4D tensor with shape of [batch_size, img_height, img_width, img_depth]. n is the num_residual_blocks. Reuse is a boolean, indicating the graph is build for train or validation data. 
+The inference() function is the main function of resnet.py. It will be used twice in both building the training graph and validation graph. 
+<!--The inference() function is the main function of resnet.py. It takes three arguments: input_tensor_batch, n and resue. input_tensor_batch is a 4D tensor with shape of [batch_size, img_height, img_width, img_depth]. n is the num_residual_blocks. Reuse is a boolean, indicating the graph is build for train or validation data.
 
-To enable the different sizes of validation batch to train batch, I use two different sets of placeholders for train and validation data, and build the graphs separately, and the validation graph shares the same weights with the train graph. In this situation, we are passing reuse=True to each variable scope of train graph to fetch the weights. To read more about variable scope, see [variable scope](https://www.tensorflow.org/versions/master/how_tos/variable_scope/index.html)
+To enable the different sizes of validation batch to train batch, I use two different sets of placeholders for train and validation data, and build the graphs separately, and the validation graph shares the same weights with the train graph. In this situation, we are passing reuse=True to each variable scope of train graph to fetch the weights. To read more about variable scope, see [variable scope](https://www.tensorflow.org/versions/master/how_tos/variable_scope/index.html) -->
 
 
 ### Training
-The class Train() defines all the functions that regulates training, with train() as the main function. The basic idea is to run train_op for FLAGS.train_steps times. If step % FLAGS.report_freq == 0, it will valdiate once, train once and wrote all the summaries onto the tensorboard. (We do want to validate before training, so that we can check the original errors and losses with the theoretical value.)
+The class Train() defines all the functions regarding training process, with train() being the main function. The basic idea is to run train_op for FLAGS.train_steps times. If step % FLAGS.report_freq == 0, it will valdiate once, train once and wrote all the summaries onto the tensorboard. 
+ 
+<!--(We do want to validate before training, so that we can check the original errors and losses with the theoretical value.)-->
 
 The following two concepts may help you understand the code better.
 
