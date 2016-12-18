@@ -107,8 +107,9 @@ There are five categories of hyper-parameters.
 
 ### ResNet Structure
 Here we use the latest version of ResNet. The structure of the residual block looks like [ref](https://arxiv.org/abs/1603.05027):
-
+<p align="center">
 <img src="https://github.com/wenxinxu/resnet-in-tensorflow/blob/master/appendix/Residual_block.png" width="240">
+</p>
 
 The inference() function is the main function of resnet.py. It will be used twice in both building the training graph and validation graph. 
 <!--The inference() function is the main function of resnet.py. It takes three arguments: input_tensor_batch, n and resue. input_tensor_batch is a 4D tensor with shape of [batch_size, img_height, img_width, img_depth]. n is the num_residual_blocks. Reuse is a boolean, indicating the graph is build for train or validation data.
