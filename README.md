@@ -145,12 +145,11 @@ After you create the tensor, add `tf.scalar_summary(name='name_on_tensorboard', 
 After you set up all the scalar summaries, type `summary_op = tf.merge_all_summaries()`. This command merge all the summarizing operations into a single operation, which means that running summary_op is equivalent to running all the scalar summaries together. -->
 
 ### Test
-The test() function in the class Train() help you predict. It returns the top-1 error and total loss. You need to prepare and pre-process your test data and pass it to the function. You may either use your own checkpoints or the pre-trained ResNet-110 checkpoint I uploaded. You may wrote the following lines at the end of cifar10_train.py file
+The test() function in the class Train() help you predict. It returns the softmax probability with shape [num_test_images, num_labels]. You need to prepare and pre-process your test data and pass it to the function. You may either use your own checkpoints or the pre-trained ResNet-110 checkpoint I uploaded. You may wrote the following lines at the end of cifar10_train.py file
 ```
 train = Train()
 test_image_array = ... # Better to be whitened in advance. Shape = [-1, img_height, img_width, img_depth]
-test_label_array = ... # Shape = [-1]. Needs to have the same length with test_image_array
-top1_error, loss = train.test(test_image_array, test_label_array)
+top1_error, loss = train.test(test_image_array)
 ```
 Run the following commands in the command line:
 ```
