@@ -204,14 +204,13 @@ class Train(object):
                 df.to_csv(train_dir + FLAGS.version + '_error.csv')
 
 
-    def test(self, test_image_array, test_label_array):
+    def test(self, test_image_array):
         '''
         This function is used to evaluate the test data. Please finish pre-precessing in advance
 
         :param test_image_array: 4D numpy array with shape [num_test_images, img_height, img_width,
         img_depth]
-        :param test_label_array: 1D numpy array with shape [num_test_images]
-        :return: top-1 error (float) and loss (float)
+        :return: the softmax probability with shape [num_test_images, num_labels]
         '''
         num_test_images = len(test_image_array)
         num_batches = num_test_images // FLAGS.test_batch_size
@@ -221,15 +220,10 @@ class Train(object):
         # Create the test image and labels placeholders
         self.test_image_placeholder = tf.placeholder(dtype=tf.float32, shape=[FLAGS.test_batch_size,
                                                         IMG_HEIGHT, IMG_WIDTH, IMG_DEPTH])
-        self.test_label_placeholder = tf.placeholder(dtype=tf.int32, shape=[FLAGS.test_batch_size])
-
 
         # Build the test graph
         logits = inference(self.test_image_placeholder, FLAGS.num_residual_blocks, reuse=False)
         predictions = tf.nn.softmax(logits)
-        test_top1_error = self.top_k_error(predictions, self.test_label_placeholder, 1)
-        test_loss = self.loss(logits, self.test_label_placeholder)
-
 
         # Initialize a new session and restore a checkpoint
         saver = tf.train.Saver(tf.all_variables())
@@ -238,51 +232,35 @@ class Train(object):
         saver.restore(sess, FLAGS.test_ckpt_path)
         print 'Model restored from ', FLAGS.test_ckpt_path
 
-        test_error_values = []
-        test_loss_values = []
-
+        prediction_array = np.array([]).reshape(-1, NUM_CLASS)
         # Test by batches
         for step in range(num_batches):
             if step % 10 == 0:
                 print '%i batches finished!' %step
             offset = step * FLAGS.test_batch_size
             test_image_batch = test_image_array[offset:offset+FLAGS.test_batch_size, ...]
-            test_label_batch = test_label_array[offset:offset+FLAGS.test_batch_size]
 
-            batch_error, batch_loss = sess.run([test_top1_error, test_loss],
-                                        feed_dict={self.test_image_placeholder: test_image_batch,
-                                                   self.test_label_placeholder:test_label_batch})
-            test_error_values.append(batch_error)
-            test_loss_values.append(batch_loss)
+            batch_prediction_array = sess.run(predictions,
+                                        feed_dict={self.test_image_placeholder: test_image_batch})
+
+            prediction_array = np.concatenate((prediction_array, batch_prediction_array))
 
         # If test_batch_size is not a divisor of num_test_images
         if remain_images != 0:
             self.test_image_placeholder = tf.placeholder(dtype=tf.float32, shape=[remain_images,
                                                         IMG_HEIGHT, IMG_WIDTH, IMG_DEPTH])
-            self.test_label_placeholder = tf.placeholder(dtype=tf.int32, shape=[remain_images])
+            # Build the test graph
+            logits = inference(self.test_image_placeholder, FLAGS.num_residual_blocks, reuse=True)
+            predictions = tf.nn.softmax(logits)
+
             test_image_batch = test_image_array[-remain_images:, ...]
-            test_label_batch = test_label_array[-remain_images]
 
-            batch_error, batch_loss = sess.run([test_top1_error, test_loss],
-                                        feed_dict={self.test_image_placeholder: test_image_batch,
-                                                   self.test_label_placeholder:test_label_batch})
-            test_error_values.append(batch_error)
-            test_loss_values.append(batch_loss)
+            batch_prediction_array = sess.run(predictions, feed_dict={
+                self.test_image_placeholder: test_image_batch})
 
-            # Calculate a weighted sum of all batches
-            remain_portion = remain_images * 1.0 / num_test_images
+            prediction_array = np.concatenate((prediction_array, batch_prediction_array))
 
-            test_error_final = np.mean(test_error_values[:,-1]) * (1 - remain_portion) + \
-                               test_error_values[-1] * remain_portion
-            test_loss_final = np.mean(test_loss_values[:, -1]) * (1 - remain_portion) + \
-                              test_loss_values[-1] * remain_portion
-        else:
-            test_error_final = np.mean(test_error_values)
-            test_loss_final = np.mean(test_loss_values)
-            
-        print 'Final test error = ', test_error_final
-        print 'Final test loss = ', test_loss_final
-        return test_error_final, test_loss_final
+        return prediction_array
 
 
 
