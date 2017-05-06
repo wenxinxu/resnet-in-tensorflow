@@ -2,12 +2,13 @@
 
 This implementation of [resnet](http://arxiv.org/abs/1512.03385) and [its variants](https://arxiv.org/abs/1603.05027)  is designed to be straightforward and friendly to new ResNet users. You can train a resnet on cifar10 by downloading and running the code. There are screen outputs, tensorboard statistics and tensorboard graph visualization to help you monitor the training process and visualize the model.
 
-Now the code works with tensorflow 1.0.0 and 1.1.0, but it's no longer compatible with earlier versions. 
-
-####If you like the code, please star it! You are welcome to post questions and suggestions on my github.
+Now the code works with tensorflow 1.0.0 and 1.1.0, but it's no longer compatible with earlier versions.
 
 
-##Table of Contents
+#### If you like the code, please star it! You are welcome to post questions and suggestions on my github.
+
+
+## Table of Contents
 * [Validation errors](#validation-errors)
 * [Training curves](#training-curves)
 * [User's guide](#users-guide)
