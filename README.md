@@ -58,7 +58,7 @@ The hyper_parameters.py file defines all the hyper-parameters that you may chang
 There are five categories of hyper-parameters.
 
 -------------------------------------------------------------------------------------------------------------------------------------
-####1. Hyper-parameters about saving training logs, tensorboard outputs and screen outputs, which includes:
+#### 1. Hyper-parameters about saving training logs, tensorboard outputs and screen outputs, which includes:
 **version**: str. The checkpoints and output events will be saved in logs_$version/
 
 **report_freq**: int. How many batches to run a full validation and print screen output once. Screen output looks like:
@@ -69,7 +69,7 @@ There are five categories of hyper-parameters.
 -------------------------------------------------------------------------------------------------------------------------------------
 
 
-####2. Hyper-parameters regarding the training process
+#### 2. Hyper-parameters regarding the training process
 **train_steps**: int. Total training steps 
 
 **is_full_validation**: boolean. If you want to use all the 10000 validation images to run the validation (True), or you want to randomly draw a batch of validation data (False)
@@ -88,19 +88,19 @@ There are five categories of hyper-parameters.
 
 ------------------------------------------------------------------------------------------------------------------------------------
 
-####3. Hyper-parameters that controls the network
+#### 3. Hyper-parameters that controls the network
 **num_residual_blocks**: int. The total layers of the ResNet = 6 * num_residual_blocks + 2
 
 **weight_decay**: float. The weight decay used to regularize the network. Total_loss = train_loss + weight_decay* sume of sqaures of the weights
 
 -----------------------------------------------------------------------------------------------------------------------------------
 
-####4. About data augmentation
+#### 4. About data augmentation
 **padding_size**: int. padding_size is numbers of zero pads to add on each side of the image. Padding and random cropping during training can prevent overfitting. 
 
 -----------------------------------------------------------------------------------------------------------------------------------
 
-####5. Loading checkpoints
+#### 5. Loading checkpoints
 **ckpt_path**: str. The path of the checkpoint that you want to load
 
 **is_use_ckpt**: boolean. If yes,  use a checkpoint and continue the training from the checkpoint
