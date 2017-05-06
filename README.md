@@ -2,6 +2,8 @@
 
 This implementation of [resnet](http://arxiv.org/abs/1512.03385) and [its variants](https://arxiv.org/abs/1603.05027)  is designed to be straightforward and friendly to new ResNet users. You can train a resnet on cifar10 by downloading and running the code. There are screen outputs, tensorboard statistics and tensorboard graph visualization to help you monitor the training process and visualize the model.
 
+Now the code works with tensorflow 1.0.0 and 1.1.0, but it's no longer compatible with earlier versions. 
+
 ####If you like the code, please star it! You are welcome to post questions and suggestions on my github.
 
 
@@ -36,7 +38,7 @@ The training and validation error will be output on the screen. They can also be
 The relevant statistics of each layer can be found on tensorboard.  
 
 ### Pre-requisites
-pandas, numpy , opencv, tensorflow(0.11.0)
+pandas, numpy , opencv, tensorflow(1.0.0)
 
 ### Overall structure
 There are four python files in the repository. cifar10_input.py, resnet.py, cifar10_train.py, hyper_parameters.py.

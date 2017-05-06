@@ -132,7 +132,7 @@ def whitening_image(image_np):
     for i in range(len(image_np)):
         mean = np.mean(image_np[i, ...])
         # Use adjusted standard deviation here, in case the std == 0.
-        std = np.max(np.std(image_np[i, ...]), 1.0/np.sqrt(IMG_HEIGHT * IMG_WIDTH * IMG_DEPTH))
+        std = np.max([np.std(image_np[i, ...]), 1.0/np.sqrt(IMG_HEIGHT * IMG_WIDTH * IMG_DEPTH)])
         image_np[i,...] = (image_np[i, ...] - mean) / std
     return image_np
 

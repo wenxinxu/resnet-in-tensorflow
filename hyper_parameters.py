@@ -18,7 +18,7 @@ moving average shown on tensorboard''')
 ## The following flags define hyper-parameters regards training
 
 tf.app.flags.DEFINE_integer('train_steps', 80000, '''Total steps that you want to train''')
-tf.app.flags.DEFINE_boolean('is_full_validation', True, '''Validation w/ full validation set or
+tf.app.flags.DEFINE_boolean('is_full_validation', False, '''Validation w/ full validation set or
 a random batch''')
 tf.app.flags.DEFINE_integer('train_batch_size', 128, '''Train batch size''')
 tf.app.flags.DEFINE_integer('validation_batch_size', 250, '''Validation batch size, better to be
@@ -34,7 +34,7 @@ tf.app.flags.DEFINE_integer('decay_step1', 60000, '''At which step to decay the 
 
 ## The following flags define hyper-parameters modifying the training network
 
-tf.app.flags.DEFINE_integer('num_residual_blocks', 18, '''How many residual blocks do you want''')
+tf.app.flags.DEFINE_integer('num_residual_blocks', 5, '''How many residual blocks do you want''')
 tf.app.flags.DEFINE_float('weight_decay', 0.0002, '''scale for l2 regularization''')
 
 

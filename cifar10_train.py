@@ -90,8 +90,8 @@ class Train(object):
 
         # Initialize a saver to save checkpoints. Merge all summaries, so we can run all
         # summarizing operations by running summary_op. Initialize a new session
-        saver = tf.train.Saver(tf.all_variables())
-        summary_op = tf.merge_all_summaries()
+        saver = tf.train.Saver(tf.global_variables())
+        summary_op = tf.summary.merge_all()
         init = tf.initialize_all_variables()
         sess = tf.Session()
 
@@ -104,7 +104,7 @@ class Train(object):
             sess.run(init)
 
         # This summary writer object helps write summaries on tensorboard
-        summary_writer = tf.train.SummaryWriter(train_dir, sess.graph)
+        summary_writer = tf.summary.FileWriter(train_dir, sess.graph)
 
 
         # These lists are used to save a csv file at last
@@ -273,7 +273,8 @@ class Train(object):
         :return: loss tensor with shape [1]
         '''
         labels = tf.cast(labels, tf.int64)
-        cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits, labels, name='cross_entropy_per_example')
+        cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits,
+                                                                       labels=labels, name='cross_entropy_per_example')
         cross_entropy_mean = tf.reduce_mean(cross_entropy, name='cross_entropy')
         return cross_entropy_mean
 
@@ -336,15 +337,15 @@ class Train(object):
         will generate the moving average of train error and train loss for tensorboard
         '''
         # Add train_loss, current learning rate and train error into the tensorboard summary ops
-        tf.scalar_summary('learning_rate', self.lr_placeholder)
-        tf.scalar_summary('train_loss', total_loss)
-        tf.scalar_summary('train_top1_error', top1_error)
+        tf.summary.scalar('learning_rate', self.lr_placeholder)
+        tf.summary.scalar('train_loss', total_loss)
+        tf.summary.scalar('train_top1_error', top1_error)
 
         # The ema object help calculate the moving average of train loss and train error
         ema = tf.train.ExponentialMovingAverage(FLAGS.train_ema_decay, global_step)
         train_ema_op = ema.apply([total_loss, top1_error])
-        tf.scalar_summary('train_top1_error_avg', ema.average(top1_error))
-        tf.scalar_summary('train_loss_avg', ema.average(total_loss))
+        tf.summary.scalar('train_top1_error_avg', ema.average(top1_error))
+        tf.summary.scalar('train_loss_avg', ema.average(total_loss))
 
         opt = tf.train.MomentumOptimizer(learning_rate=self.lr_placeholder, momentum=0.9)
         train_op = opt.minimize(total_loss, global_step=global_step)
@@ -375,10 +376,10 @@ class Train(object):
         loss_val_avg = ema2.average(loss)
 
         # Summarize these values on tensorboard
-        tf.scalar_summary('val_top1_error', top1_error_val)
-        tf.scalar_summary('val_top1_error_avg', top1_error_avg)
-        tf.scalar_summary('val_loss', loss_val)
-        tf.scalar_summary('val_loss_avg', loss_val_avg)
+        tf.summary.scalar('val_top1_error', top1_error_val)
+        tf.summary.scalar('val_top1_error_avg', top1_error_avg)
+        tf.summary.scalar('val_loss', loss_val)
+        tf.summary.scalar('val_loss_avg', loss_val_avg)
         return val_op
 
 

@@ -16,8 +16,8 @@ def activation_summary(x):
     :return: Add histogram summary and scalar summary of the sparsity of the tensor
     '''
     tensor_name = x.op.name
-    tf.histogram_summary(tensor_name + '/activations', x)
-    tf.scalar_summary(tensor_name + '/sparsity', tf.nn.zero_fraction(x))
+    tf.summary.histogram(tensor_name + '/activations', x)
+    tf.summary.scalar(tensor_name + '/sparsity', tf.nn.zero_fraction(x))
 
 
 def create_variables(name, shape, initializer=tf.contrib.layers.xavier_initializer(), is_fc_layer=False):
@@ -50,7 +50,7 @@ def output_layer(input_layer, num_labels):
     input_dim = input_layer.get_shape().as_list()[-1]
     fc_w = create_variables(name='fc_weights', shape=[input_dim, num_labels], is_fc_layer=True,
                             initializer=tf.uniform_unit_scaling_initializer(factor=1.0))
-    fc_b = create_variables(name='fc_bias', shape=[num_labels], initializer=tf.zeros_initializer)
+    fc_b = create_variables(name='fc_bias', shape=[num_labels], initializer=tf.zeros_initializer())
 
     fc_h = tf.matmul(input_layer, fc_w) + fc_b
     return fc_h
