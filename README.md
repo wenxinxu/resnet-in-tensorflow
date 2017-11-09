@@ -152,7 +152,8 @@ The test() function in the class Train() help you predict. It returns the softma
 ```
 train = Train()
 test_image_array = ... # Better to be whitened in advance. Shape = [-1, img_height, img_width, img_depth]
-top1_error, loss = train.test(test_image_array)
+predictions = train.test(test_image_array)
+# predictions is the predicted softmax array.
 ```
 Run the following commands in the command line:
 ```
