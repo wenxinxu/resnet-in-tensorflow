@@ -31,10 +31,7 @@ def create_variables(name, shape, initializer=tf.contrib.layers.xavier_initializ
     '''
     
     ## TODO: to allow different weight decay to fully connected layer and conv layer
-    if is_fc_layer is True:
-        regularizer = tf.contrib.layers.l2_regularizer(scale=FLAGS.weight_decay)
-    else:
-        regularizer = tf.contrib.layers.l2_regularizer(scale=FLAGS.weight_decay)
+    regularizer = tf.contrib.layers.l2_regularizer(scale=FLAGS.weight_decay)
 
     new_variables = tf.get_variable(name, shape=shape, initializer=initializer,
                                     regularizer=regularizer)
